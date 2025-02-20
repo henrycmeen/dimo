@@ -1,5 +1,5 @@
 import argparse
-from App.update_mets import update_dias_mets
+from dimo.update_mets import update_dias_mets  # Changed from App.update_mets
 
 def update_mets_command(args):
     update_dias_mets(args.mets_file, args.content_dir, dry_run=args.dry_run)
