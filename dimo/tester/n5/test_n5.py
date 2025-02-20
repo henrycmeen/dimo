@@ -116,6 +116,7 @@ class N5Tester:
 
 def run_n5_test(test_name: Optional[str] = None) -> Dict[str, Any]:
     """Main entry point for running N5 tests"""
-    uttrekksmappe = env_handling.hent_uttrekksmappe_for_bruker()
+    workspace = env_handling.get_workspace()
+    uttrekksmappe = workspace.get_workspace_path()
     tester = N5Tester(uttrekksmappe)
     return tester.run_test(test_name or 'all')
