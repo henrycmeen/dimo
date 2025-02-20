@@ -84,8 +84,8 @@ def display_test_results(results: dict, standard: str):
 
 @app.command("test")
 def test(
-    standard: str = typer.Option(..., help="Standard to test against (n5, siard, etc.)"),
-    test_name: Optional[str] = typer.Option(None, help="Test to run (e.g., '01', 'all')"),
+    standard: str = typer.Argument(..., help="Standard to test against (n5, siard, etc.)"),
+    test_name: Optional[str] = typer.Argument(None, help="Test to run (e.g., '01', 'all')"),
 ):
     """Run tests for different archive standards"""
     try:
