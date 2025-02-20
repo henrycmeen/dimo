@@ -2,7 +2,7 @@
 name = "dimo"
 version = "0.1.0"
 description = "Digital Archive Management Tools"
-authors = ["Your Name <your.email@example.com>"]
+authors = ["Henry Meen <henrycmeen@me.com>"]
 readme = "README.md"
 packages = [{include = "dimo"}]
 
