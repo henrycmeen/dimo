@@ -13,7 +13,7 @@ typer = {extras = ["all"], version = "^0.9.0"}
 rich = "^13.7.0"
 
 [tool.poetry.scripts]
-dimo = "dimo.cli:main"
+dimo = "dimo.cli:app"
 
 [build-system]
 requires = ["poetry-core"]

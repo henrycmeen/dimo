@@ -36,40 +36,7 @@ from typing import Optional
 from enum import Enum
 
 console = Console()
-
-def custom_callback():
-    """Custom help callback to create a nicely formatted help message"""
-    table = Table(show_header=True, header_style="bold cyan")
-    table.add_column("Command")
-    table.add_column("Description")
-    
-    # Core commands
-    console.print("\n[bold cyan]DIMO - Digital Archive Management Tools[/]\n")
-    
-    console.print("[bold cyan]Options[/]")
-    options_table = Table(show_header=False, box=None)
-    options_table.add_column(style="cyan")
-    options_table.add_column()
-    options_table.add_row("--help", "Show this help message and exit")
-    console.print(options_table)
-    
-    console.print("\n[bold cyan]Commands[/]")
-    commands_table = Table(show_header=False, box=None)
-    commands_table.add_column(style="cyan")
-    commands_table.add_column()
-    commands_table.add_row("version", "Show version information")
-    commands_table.add_row("update", "Update DIMO to the latest version")
-    commands_table.add_row("update-mets", "Update dias-METS file with correct paths and checksums")
-    commands_table.add_row("report", "Generate reports about files and content")
-    console.print(commands_table)
-    
-    raise typer.Exit()
-
-app = typer.Typer(
-    help="DIMO - Digital Archive Management Tools",
-    no_args_is_help=True,
-    callback=custom_callback
-)
+app = typer.Typer(help="DIMO - Digital Archive Management Tools")
 
 class ReportFormat(str, Enum):
     text = "text"
@@ -118,4 +85,4 @@ def main():
     app()
 
 if __name__ == "__main__":
-    app()
+    main()
