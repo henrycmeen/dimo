@@ -20,6 +20,14 @@ class WorkspaceManager:
         """Get the path to the METS file."""
         return self.workspace_path / "dias-mets.xml"
 
+    def hent_uttrekksmappe_for_bruker(self) -> Path:
+        """Get the extraction folder path for user tests.
+
+        Returns:
+            Path: The path to the extraction folder.
+        """
+        return self.workspace_path
+
 # Global workspace manager instance
 workspace_manager = WorkspaceManager()
 
