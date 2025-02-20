@@ -6,34 +6,10 @@ from dimo.report import generate_report
 from dimo import __version__
 from typing import Optional
 from enum import Enum
-
-class CustomFormatter(argparse.HelpFormatter):
-    def _format_action_invocation(self, action):
-        if not action.option_strings:
-            default = self._get_default_metavar_for_positional(action)
-            metavar = action.metavar or default
-            return metavar
-        else:
-            parts = []
-            if action.nargs == 0:
-                parts.extend(action.option_strings)
-            else:
-                default = self._get_default_metavar_for_optional(action)
-                args_string = self._format_args(action, default)
-                for option_string in action.option_strings:
-                    parts.append('%s %s' % (option_string, args_string))
-            return ', '.join(parts)
-
 import typer
 from rich.console import Console
 from rich.table import Table
-import subprocess
-import sys
-from dimo.update_mets import update_dias_mets
-from dimo.report import generate_report
-from dimo import __version__
-from typing import Optional
-from enum import Enum
+from dimo.tester.n5.test_n5 import run_n5_test
 
 app = typer.Typer()
 
@@ -96,6 +72,29 @@ def report(
 ):
     """Generate reports about files and content"""
     generate_report(path=path, format=format.value)
+
+def display_test_results(results: dict, standard: str):
+    """Helper function to display test results in a consistent format"""
+    console = Console()
+    console.print(f"\n[bold cyan]{standard.upper()} Test Results[/]\n")
+    for test_id, test_data in results.items():
+        console.print(f"[bold]{test_id}[/]")
+        console.print(test_data)
+        console.print()
+
+@app.command("test")
+def test(
+    standard: str = typer.Option(..., help="Standard to test against (n5, siard, etc.)"),
+    test_name: Optional[str] = typer.Option(None, help="Test to run (e.g., '01', 'all')"),
+):
+    """Run tests for different archive standards"""
+    try:
+        from dimo.test import run_test
+        results = run_test(standard, test_name)
+        display_test_results(results, standard)
+    except Exception as e:
+        typer.echo(f"Error running {standard} test: {e}", err=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
     app()
