@@ -35,13 +35,29 @@ from dimo import __version__
 from typing import Optional
 from enum import Enum
 
-console = Console()
-app = typer.Typer(help="DIMO - Digital Archive Management Tools")
+app = typer.Typer()
 
 class ReportFormat(str, Enum):
     text = "text"
     json = "json"
     html = "html"
+
+@app.callback(invoke_without_command=True)
+def callback(ctx: typer.Context):
+    """DIMO - Digital Archive Management Tools"""
+    if ctx.invoked_subcommand is None:
+        console = Console()
+        console.print("\n[bold cyan]DIMO - Digital Archive Management Tools[/]\n")
+        
+        commands_table = Table(show_header=False, box=None)
+        commands_table.add_column(style="cyan")
+        commands_table.add_column()
+        commands_table.add_row("version", "Show version information")
+        commands_table.add_row("update", "Update DIMO to the latest version")
+        commands_table.add_row("update-mets", "Update dias-METS file with correct paths and checksums")
+        commands_table.add_row("report", "Generate reports about files and content")
+        console.print(commands_table)
+        console.print()
 
 @app.command()
 def version(check: bool = typer.Option(False, help="Check for updates")):
@@ -81,8 +97,5 @@ def report(
     """Generate reports about files and content"""
     generate_report(path=path, format=format.value)
 
-def main():
-    app()
-
 if __name__ == "__main__":
-    main()
+    app()
