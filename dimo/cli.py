@@ -3,75 +3,74 @@ import subprocess
 import sys
 from dimo.update_mets import update_dias_mets
 from dimo.report import generate_report
+from dimo import __version__
+from typing import Optional
+from enum import Enum
 
-def update_command(args):
+class CustomFormatter(argparse.HelpFormatter):
+    def _format_action_invocation(self, action):
+        if not action.option_strings:
+            default = self._get_default_metavar_for_positional(action)
+            metavar = action.metavar or default
+            return metavar
+        else:
+            parts = []
+            if action.nargs == 0:
+                parts.extend(action.option_strings)
+            else:
+                default = self._get_default_metavar_for_optional(action)
+                args_string = self._format_args(action, default)
+                for option_string in action.option_strings:
+                    parts.append('%s %s' % (option_string, args_string))
+            return ', '.join(parts)
+
+app = typer.Typer(help="DIMO - Digital Archive Management Tools")
+
+class ReportFormat(str, Enum):
+    text = "text"
+    json = "json"
+    html = "html"
+
+@app.command()
+def version(check: bool = typer.Option(False, help="Check for updates")):
+    """Show version information"""
+    typer.echo(f"DIMO version {__version__}")
+    if check:
+        typer.echo("Checking for updates...")
+
+@app.command()
+def update():
     """Update DIMO to the latest version"""
-    print("Updating DIMO to the latest version...")
+    typer.echo("Updating DIMO to the latest version...")
     try:
         subprocess.check_call([
             sys.executable, "-m", "pip", "install", "--upgrade",
             "git+https://github.com/henrycmeen/dimo.git"
         ])
-        print("Successfully updated DIMO!")
+        typer.echo("Successfully updated DIMO!")
     except subprocess.CalledProcessError as e:
-        print(f"Error updating DIMO: {e}", file=sys.stderr)
+        typer.echo(f"Error updating DIMO: {e}", err=True)
         sys.exit(1)
 
-def update_mets_command(args):
-    update_dias_mets(args.mets_file, args.content_dir, dry_run=args.dry_run)
+@app.command("update-mets")
+def update_mets(
+    mets_file: str = typer.Option("dias-mets.xml", help="METS file to update"),
+    content_dir: str = typer.Option("content", help="Content directory"),
+    dry_run: bool = typer.Option(False, help="Run without writing changes to file")
+):
+    """Update dias-METS file with correct paths and checksums"""
+    update_dias_mets(mets_file, content_dir, dry_run=dry_run)
 
-def report_command(args):
-    generate_report(path=args.path, format=args.format)
+@app.command()
+def report(
+    path: str = typer.Option(".", help="Path to analyze"),
+    format: ReportFormat = typer.Option(ReportFormat.text, help="Output format")
+):
+    """Generate reports about files and content"""
+    generate_report(path=path, format=format.value)
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="DIMO - Digital Archive Management Tools"
-    )
-    subparsers = parser.add_subparsers(dest='command', help='Available commands')
-    
-    # update command
-    update_parser = subparsers.add_parser('update',
-        help='Update DIMO to the latest version')
-    
-    # update-mets command
-    update_mets_parser = subparsers.add_parser('update-mets', 
-        help='Update dias-METS file with correct paths, file sizes, and checksums')
-    update_mets_parser.add_argument(
-        "--mets-file", default="dias-mets.xml",
-        help="METS file to update (default: dias-mets.xml)"
-    )
-    update_mets_parser.add_argument(
-        "--content-dir", default="content",
-        help="Content directory (default: content)"
-    )
-    update_mets_parser.add_argument(
-        "--dry-run", action="store_true",
-        help="Run without writing changes to file (dry run)"
-    )
-    
-    # report command
-    report_parser = subparsers.add_parser('report',
-        help='Generate reports about files and content')
-    report_parser.add_argument(
-        "--path", default=".",
-        help="Path to analyze (default: current directory)"
-    )
-    report_parser.add_argument(
-        "--format", default="text",
-        choices=['text', 'json', 'html'],
-        help="Output format (default: text)"
-    )
-    
-    args = parser.parse_args()
-    
-    if args.command == 'update':
-        update_command(args)
-    elif args.command == 'update-mets':
-        update_mets_command(args)
-    elif args.command == 'report':
-        report_command(args)
-    elif args.command is None:
-        parser.print_help()
+    app()
 
 if __name__ == "__main__":
-    main()
+    app()
